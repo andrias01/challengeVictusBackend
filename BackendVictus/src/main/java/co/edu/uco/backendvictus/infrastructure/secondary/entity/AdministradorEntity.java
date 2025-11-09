@@ -2,44 +2,42 @@ package co.edu.uco.backendvictus.infrastructure.secondary.entity;
 
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
-@Table(name = "administrador")
-public class AdministradorJpaEntity {
+@Table("administrador")
+public class AdministradorEntity {
 
     @Id
     private UUID id;
 
-    @Column(name = "primer_nombre", nullable = false, length = 60)
+    @Column("primer_nombre")
     private String primerNombre;
 
-    @Column(name = "segundo_nombres", length = 100)
+    @Column("segundo_nombres")
     private String segundoNombres;
 
-    @Column(name = "primer_apellido", nullable = false, length = 60)
+    @Column("primer_apellido")
     private String primerApellido;
 
-    @Column(name = "segundo_apellido", length = 60)
+    @Column("segundo_apellido")
     private String segundoApellido;
 
-    @Column(nullable = false, length = 120, unique = true)
+    @Column("email")
     private String email;
 
-    @Column(length = 20)
+    @Column("telefono")
     private String telefono;
 
-    @Column(nullable = false)
+    @Column("activo")
     private boolean activo;
 
-    protected AdministradorJpaEntity() {
-        // JPA
+    public AdministradorEntity() {
+        // R2DBC requires a default constructor
     }
 
-    public AdministradorJpaEntity(final UUID id, final String primerNombre, final String segundoNombres,
+    public AdministradorEntity(final UUID id, final String primerNombre, final String segundoNombres,
             final String primerApellido, final String segundoApellido, final String email, final String telefono,
             final boolean activo) {
         this.id = id;

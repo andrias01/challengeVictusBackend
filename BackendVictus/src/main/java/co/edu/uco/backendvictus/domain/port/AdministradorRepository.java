@@ -1,18 +1,18 @@
 package co.edu.uco.backendvictus.domain.port;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import co.edu.uco.backendvictus.domain.model.Administrador;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface AdministradorRepository {
 
-    Administrador save(Administrador administrador);
+    Mono<Administrador> save(Administrador administrador);
 
-    Optional<Administrador> findById(UUID id);
+    Mono<Administrador> findById(UUID id);
 
-    List<Administrador> findAll();
+    Flux<Administrador> findAll();
 
-    void deleteById(UUID id);
+    Mono<Void> deleteById(UUID id);
 }
