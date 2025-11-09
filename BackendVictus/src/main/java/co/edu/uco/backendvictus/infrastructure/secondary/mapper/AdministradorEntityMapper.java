@@ -1,10 +1,12 @@
 package co.edu.uco.backendvictus.infrastructure.secondary.mapper;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import co.edu.uco.backendvictus.domain.model.Administrador;
 import co.edu.uco.backendvictus.infrastructure.secondary.entity.AdministradorEntity;
 
+@Primary
 @Component
 public class AdministradorEntityMapper {
 
