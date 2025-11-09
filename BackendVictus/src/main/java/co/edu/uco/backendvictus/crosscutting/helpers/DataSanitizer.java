@@ -16,6 +16,10 @@ public final class DataSanitizer {
      * @return sanitized text safe to be stored in the domain
      */
     public static String sanitizeText(final String rawValue) {
-        return TextHelper.sanitize(rawValue);
+        final String sanitized = TextHelper.sanitize(rawValue);
+        if (TextHelper.isNull(sanitized) || TextHelper.isEmptyAfterTrim(sanitized)) {
+            return null;
+        }
+        return sanitized;
     }
 }
