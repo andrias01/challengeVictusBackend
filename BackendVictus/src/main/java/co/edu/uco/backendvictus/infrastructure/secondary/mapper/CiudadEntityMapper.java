@@ -1,23 +1,19 @@
 package co.edu.uco.backendvictus.infrastructure.secondary.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import co.edu.uco.backendvictus.domain.model.Ciudad;
 import co.edu.uco.backendvictus.domain.model.Departamento;
 import co.edu.uco.backendvictus.infrastructure.secondary.entity.CiudadEntity;
 
-@Component
-public class CiudadEntityMapper {
+@Mapper(componentModel = "spring")
+public interface CiudadEntityMapper {
 
-    public CiudadEntity toEntity(final Ciudad ciudad) {
-        if (ciudad == null) {
-            return null;
-        }
-        return new CiudadEntity(ciudad.getId(), ciudad.getDepartamento().getId(), ciudad.getNombre(),
-                ciudad.isActivo());
-    }
+    @Mapping(target = "departamentoId", source = "departamento.id")
+    CiudadEntity toEntity(Ciudad ciudad);
 
-    public Ciudad toDomain(final CiudadEntity entity, final Departamento departamento) {
+    default Ciudad toDomain(final CiudadEntity entity, final Departamento departamento) {
         if (entity == null || departamento == null) {
             return null;
         }
