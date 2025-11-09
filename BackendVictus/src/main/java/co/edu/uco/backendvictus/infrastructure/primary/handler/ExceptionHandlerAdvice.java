@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import co.edu.uco.backendvictus.crosscutting.exception.ApplicationException;
+import co.edu.uco.backendvictus.crosscutting.exception.BackendVictusException;
 import co.edu.uco.backendvictus.crosscutting.exception.DomainException;
 import co.edu.uco.backendvictus.crosscutting.exception.InfrastructureException;
 import co.edu.uco.backendvictus.crosscutting.helpers.LoggerHelper;
+import co.edu.uco.backendvictus.crosscutting.helpers.TextHelper;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
@@ -21,21 +23,21 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomainException(final DomainException exception,
             final HttpServletRequest request) {
-        LOGGER.warn("Error de dominio: {}", exception.getMessage());
+        LOGGER.warn("Error de dominio: {}", exception.getTechnicalMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, exception, request);
     }
 
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<ErrorResponse> handleApplicationException(final ApplicationException exception,
             final HttpServletRequest request) {
-        LOGGER.warn("Error de aplicacion: {}", exception.getMessage());
+        LOGGER.warn("Error de aplicacion: {}", exception.getTechnicalMessage());
         return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, exception, request);
     }
 
     @ExceptionHandler(InfrastructureException.class)
     public ResponseEntity<ErrorResponse> handleInfrastructureException(final InfrastructureException exception,
             final HttpServletRequest request) {
-        LOGGER.error("Error de infraestructura", exception);
+        LOGGER.error("Error de infraestructura: {}", exception.getTechnicalMessage(), exception);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception, request);
     }
 
@@ -48,8 +50,10 @@ public class ExceptionHandlerAdvice {
 
     private ResponseEntity<ErrorResponse> buildResponse(final HttpStatus status, final Exception exception,
             final HttpServletRequest request) {
-        final ErrorResponse response = new ErrorResponse(LocalDateTime.now(), exception.getMessage(),
-                request.getRequestURI());
+        final String message = exception instanceof BackendVictusException backendException
+                ? backendException.getUserMessage()
+                : TextHelper.applyTrim(exception.getMessage());
+        final ErrorResponse response = new ErrorResponse(LocalDateTime.now(), message, request.getRequestURI());
         return ResponseEntity.status(status).body(response);
     }
 }
