@@ -2,7 +2,6 @@ package co.edu.uco.backendvictus.application.usecase.pais;
 
 import co.edu.uco.backendvictus.application.usecase.UseCase;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.uco.backendvictus.application.dto.pais.PaisResponse;
 import co.edu.uco.backendvictus.application.dto.pais.PaisUpdateRequest;
@@ -10,6 +9,7 @@ import co.edu.uco.backendvictus.application.mapper.PaisApplicationMapper;
 import co.edu.uco.backendvictus.crosscutting.exception.ApplicationException;
 import co.edu.uco.backendvictus.domain.model.Pais;
 import co.edu.uco.backendvictus.domain.port.PaisRepository;
+import reactor.core.publisher.Mono;
 
 @Service
 public class UpdatePaisUseCase implements UseCase<PaisUpdateRequest, PaisResponse> {
@@ -23,13 +23,12 @@ public class UpdatePaisUseCase implements UseCase<PaisUpdateRequest, PaisRespons
     }
 
     @Override
-    @Transactional
-    public PaisResponse execute(final PaisUpdateRequest request) {
-        repository.findById(request.id())
-                .orElseThrow(() -> new ApplicationException("Pais no encontrado"));
-
-        final Pais actualizado = mapper.toDomain(request);
-        final Pais persisted = repository.save(actualizado);
-        return mapper.toResponse(persisted);
+    public Mono<PaisResponse> execute(final PaisUpdateRequest request) {
+        return repository.findById(request.id())
+                .switchIfEmpty(Mono.error(new ApplicationException("Pais no encontrado")))
+                .flatMap(existing -> {
+                    final Pais actualizado = mapper.toDomain(request);
+                    return repository.save(actualizado);
+                }).map(mapper::toResponse);
     }
 }

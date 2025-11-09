@@ -3,10 +3,10 @@ package co.edu.uco.backendvictus.application.usecase.conjunto;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.uco.backendvictus.crosscutting.exception.ApplicationException;
 import co.edu.uco.backendvictus.domain.port.ConjuntoResidencialRepository;
+import reactor.core.publisher.Mono;
 
 @Service
 public class DeleteConjuntoUseCase {
@@ -17,10 +17,9 @@ public class DeleteConjuntoUseCase {
         this.conjuntoRepository = conjuntoRepository;
     }
 
-    @Transactional
-    public void execute(final UUID id) {
-        conjuntoRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException("Conjunto residencial no encontrado"));
-        conjuntoRepository.deleteById(id);
+    public Mono<Void> execute(final UUID id) {
+        return conjuntoRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ApplicationException("Conjunto residencial no encontrado")))
+                .flatMap(conjunto -> conjuntoRepository.deleteById(id));
     }
 }

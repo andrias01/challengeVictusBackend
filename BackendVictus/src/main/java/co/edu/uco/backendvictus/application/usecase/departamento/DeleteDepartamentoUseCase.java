@@ -3,10 +3,10 @@ package co.edu.uco.backendvictus.application.usecase.departamento;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.uco.backendvictus.crosscutting.exception.ApplicationException;
 import co.edu.uco.backendvictus.domain.port.DepartamentoRepository;
+import reactor.core.publisher.Mono;
 
 @Service
 public class DeleteDepartamentoUseCase {
@@ -17,10 +17,9 @@ public class DeleteDepartamentoUseCase {
         this.departamentoRepository = departamentoRepository;
     }
 
-    @Transactional
-    public void execute(final UUID id) {
-        departamentoRepository.findById(id)
-                .orElseThrow(() -> new ApplicationException("Departamento no encontrado"));
-        departamentoRepository.deleteById(id);
+    public Mono<Void> execute(final UUID id) {
+        return departamentoRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ApplicationException("Departamento no encontrado")))
+                .flatMap(departamento -> departamentoRepository.deleteById(id));
     }
 }

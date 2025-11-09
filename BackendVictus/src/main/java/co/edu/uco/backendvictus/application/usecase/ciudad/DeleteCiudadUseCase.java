@@ -3,10 +3,10 @@ package co.edu.uco.backendvictus.application.usecase.ciudad;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import co.edu.uco.backendvictus.crosscutting.exception.ApplicationException;
 import co.edu.uco.backendvictus.domain.port.CiudadRepository;
+import reactor.core.publisher.Mono;
 
 @Service
 public class DeleteCiudadUseCase {
@@ -17,9 +17,9 @@ public class DeleteCiudadUseCase {
         this.ciudadRepository = ciudadRepository;
     }
 
-    @Transactional
-    public void execute(final UUID id) {
-        ciudadRepository.findById(id).orElseThrow(() -> new ApplicationException("Ciudad no encontrada"));
-        ciudadRepository.deleteById(id);
+    public Mono<Void> execute(final UUID id) {
+        return ciudadRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ApplicationException("Ciudad no encontrada")))
+                .flatMap(ciudad -> ciudadRepository.deleteById(id));
     }
 }

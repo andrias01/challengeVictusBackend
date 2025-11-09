@@ -1,6 +1,5 @@
 package co.edu.uco.backendvictus.infrastructure.primary.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -22,6 +21,8 @@ import co.edu.uco.backendvictus.application.usecase.pais.DeletePaisUseCase;
 import co.edu.uco.backendvictus.application.usecase.pais.ListPaisUseCase;
 import co.edu.uco.backendvictus.application.usecase.pais.UpdatePaisUseCase;
 import co.edu.uco.backendvictus.crosscutting.helpers.DataSanitizer;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/paises")
@@ -40,29 +41,29 @@ public class PaisController {
         this.deletePaisUseCase = deletePaisUseCase;
     }
 
-    @PostMapping
-    public ResponseEntity<PaisResponse> crear(@RequestBody final PaisCreateRequest request) {
+    @PostMapping("/crear")
+    public Mono<ResponseEntity<PaisResponse>> crear(@RequestBody final PaisCreateRequest request) {
         final PaisCreateRequest sanitized = new PaisCreateRequest(DataSanitizer.sanitizeText(request.nombre()),
                 request.activo());
-        final PaisResponse response = createPaisUseCase.execute(sanitized);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return createPaisUseCase.execute(sanitized)
+                .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
     }
 
     @GetMapping
-    public List<PaisResponse> listar() {
+    public Flux<PaisResponse> listar() {
         return listPaisUseCase.execute();
     }
 
     @PutMapping("/{id}")
-    public PaisResponse actualizar(@PathVariable("id") final UUID id, @RequestBody final PaisUpdateRequest request) {
+    public Mono<ResponseEntity<PaisResponse>> actualizar(@PathVariable("id") final UUID id,
+            @RequestBody final PaisUpdateRequest request) {
         final PaisUpdateRequest sanitized = new PaisUpdateRequest(id, DataSanitizer.sanitizeText(request.nombre()),
                 request.activo());
-        return updatePaisUseCase.execute(sanitized);
+        return updatePaisUseCase.execute(sanitized).map(ResponseEntity::ok);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable("id") final UUID id) {
-        deletePaisUseCase.execute(id);
-        return ResponseEntity.noContent().build();
+    public Mono<ResponseEntity<Void>> eliminar(@PathVariable("id") final UUID id) {
+        return deletePaisUseCase.execute(id).thenReturn(ResponseEntity.noContent().build());
     }
 }

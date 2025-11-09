@@ -2,29 +2,27 @@ package co.edu.uco.backendvictus.infrastructure.secondary.entity;
 
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
-@Table(name = "pais")
-public class PaisJpaEntity {
+@Table("pais")
+public class PaisEntity {
 
     @Id
     private UUID id;
 
-    @Column(nullable = false, length = 120)
+    @Column("nombre")
     private String nombre;
 
-    @Column(nullable = false)
+    @Column("activo")
     private boolean activo;
 
-    protected PaisJpaEntity() {
-        // JPA
+    public PaisEntity() {
+        // R2DBC requires a default constructor
     }
 
-    public PaisJpaEntity(final UUID id, final String nombre, final boolean activo) {
+    public PaisEntity(final UUID id, final String nombre, final boolean activo) {
         this.id = id;
         this.nombre = nombre;
         this.activo = activo;
