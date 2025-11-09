@@ -1,0 +1,44 @@
+-- Países
+CREATE TABLE pais (
+    id UUID PRIMARY KEY,
+    nombre VARCHAR(120) NOT NULL,
+    activo BOOLEAN NOT NULL
+);
+
+-- Departamentos
+CREATE TABLE departamento (
+    id UUID PRIMARY KEY,
+    pais_id UUID NOT NULL REFERENCES pais(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    nombre VARCHAR(120) NOT NULL,
+    activo BOOLEAN NOT NULL
+);
+
+-- Ciudades
+CREATE TABLE ciudad (
+    id UUID PRIMARY KEY,
+    departamento_id UUID NOT NULL REFERENCES departamento(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    nombre VARCHAR(120) NOT NULL,
+    activo BOOLEAN NOT NULL
+);
+
+-- Administradores
+CREATE TABLE administrador (
+    id UUID PRIMARY KEY,
+    primer_nombre VARCHAR(60) NOT NULL,
+    segundo_nombres VARCHAR(100),
+    primer_apellido VARCHAR(60) NOT NULL,
+    segundo_apellido VARCHAR(60),
+    email VARCHAR(120) NOT NULL UNIQUE,
+    telefono VARCHAR(20),
+    activo BOOLEAN NOT NULL
+);
+
+-- Conjuntos residenciales
+CREATE TABLE conjunto_residencial (
+    id UUID PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    direccion VARCHAR(180) NOT NULL,
+    ciudad_id UUID NOT NULL REFERENCES ciudad(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    administrador_id UUID NOT NULL REFERENCES administrador(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    activo BOOLEAN NOT NULL
+);

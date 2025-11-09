@@ -24,7 +24,7 @@ import co.edu.uco.backendvictus.application.usecase.pais.UpdatePaisUseCase;
 import co.edu.uco.backendvictus.crosscutting.helpers.DataSanitizer;
 
 @RestController
-@RequestMapping("/paises")
+@RequestMapping("/api/v1/paises")
 public class PaisController {
 
     private final CreatePaisUseCase createPaisUseCase;
