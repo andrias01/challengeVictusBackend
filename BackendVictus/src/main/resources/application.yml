@@ -6,9 +6,20 @@ spring:
   r2dbc:
     url: r2dbc:postgresql://switchback.proxy.rlwy.net:23578/railway
     username: postgres
-    password: pTcDaULJAByAUYdErUvHgKIwjISJLEjU
+    password: TU_PASSWORD
+    pool:
+      enabled: true
+      initial-size: 5
+      max-size: 20
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
   web:
     resources:
       add-mappings: false
 server:
   port: 8080
+logging:
+  level:
+    org.springframework.r2dbc: DEBUG
