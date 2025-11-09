@@ -1,26 +1,16 @@
 package co.edu.uco.backendvictus.infrastructure.secondary.mapper;
 
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
 import co.edu.uco.backendvictus.domain.model.Administrador;
 import co.edu.uco.backendvictus.infrastructure.secondary.entity.AdministradorEntity;
 
-@Primary
-@Component
-public class AdministradorEntityMapper {
+@Mapper(componentModel = "spring")
+public interface AdministradorEntityMapper {
 
-    public AdministradorEntity toEntity(final Administrador administrador) {
-        if (administrador == null) {
-            return null;
-        }
-        return new AdministradorEntity(administrador.getId(), administrador.getPrimerNombre(),
-                administrador.getSegundoNombres(), administrador.getPrimerApellido(),
-                administrador.getSegundoApellido(), administrador.getEmail(), administrador.getTelefono(),
-                administrador.isActivo());
-    }
+    AdministradorEntity toEntity(Administrador administrador);
 
-    public Administrador toDomain(final AdministradorEntity entity) {
+    default Administrador toDomain(final AdministradorEntity entity) {
         if (entity == null) {
             return null;
         }
