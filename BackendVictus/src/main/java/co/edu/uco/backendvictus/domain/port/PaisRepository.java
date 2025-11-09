@@ -1,18 +1,18 @@
 package co.edu.uco.backendvictus.domain.port;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import co.edu.uco.backendvictus.domain.model.Pais;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface PaisRepository {
 
-    Pais save(Pais pais);
+    Mono<Pais> save(Pais pais);
 
-    Optional<Pais> findById(UUID id);
+    Mono<Pais> findById(UUID id);
 
-    List<Pais> findAll();
+    Flux<Pais> findAll();
 
-    void deleteById(UUID id);
+    Mono<Void> deleteById(UUID id);
 }

@@ -1,12 +1,11 @@
 package co.edu.uco.backendvictus.application.usecase.pais;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 
 import co.edu.uco.backendvictus.application.dto.pais.PaisResponse;
 import co.edu.uco.backendvictus.application.mapper.PaisApplicationMapper;
 import co.edu.uco.backendvictus.domain.port.PaisRepository;
+import reactor.core.publisher.Flux;
 
 @Service
 public class ListPaisUseCase {
@@ -19,7 +18,7 @@ public class ListPaisUseCase {
         this.mapper = mapper;
     }
 
-    public List<PaisResponse> execute() {
-        return mapper.toResponseList(repository.findAll());
+    public Flux<PaisResponse> execute() {
+        return repository.findAll().map(mapper::toResponse);
     }
 }
