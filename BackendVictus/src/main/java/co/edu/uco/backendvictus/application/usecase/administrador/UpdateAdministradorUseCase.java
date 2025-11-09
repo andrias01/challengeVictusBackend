@@ -25,8 +25,9 @@ public class UpdateAdministradorUseCase implements UseCase<AdministradorUpdateRe
         final Administrador existente = administradorRepository.findById(request.id())
                 .orElseThrow(() -> new ApplicationException("Administrador no encontrado"));
 
-        final Administrador actualizado = existente.update(request.nombreCompleto(), request.email(),
-                request.telefono(), request.activo());
+        final Administrador actualizado = existente.update(request.primerNombre(), request.segundoNombres(),
+                request.primerApellido(), request.segundoApellido(), request.email(), request.telefono(),
+                request.activo());
         final Administrador persisted = administradorRepository.save(actualizado);
         return AdministradorApplicationMapper.toResponse(persisted);
     }

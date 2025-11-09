@@ -14,18 +14,21 @@ public final class AdministradorApplicationMapper {
     }
 
     public static Administrador toDomain(final UUID id, final AdministradorCreateRequest request) {
-        return Administrador.create(id, request.nombreCompleto(), request.email(), request.telefono(),
-                request.activo());
+        return Administrador.create(id, request.primerNombre(), request.segundoNombres(), request.primerApellido(),
+                request.segundoApellido(), request.email(), request.telefono(), request.activo());
     }
 
     public static Administrador toDomain(final AdministradorUpdateRequest request) {
-        return Administrador.create(request.id(), request.nombreCompleto(), request.email(), request.telefono(),
+        return Administrador.create(request.id(), request.primerNombre(), request.segundoNombres(),
+                request.primerApellido(), request.segundoApellido(), request.email(), request.telefono(),
                 request.activo());
     }
 
     public static AdministradorResponse toResponse(final Administrador administrador) {
-        return new AdministradorResponse(administrador.getId(), administrador.getNombreCompleto(),
-                administrador.getEmail(), administrador.getTelefono(), administrador.isActivo());
+        return new AdministradorResponse(administrador.getId(), administrador.getPrimerNombre(),
+                administrador.getSegundoNombres(), administrador.getPrimerApellido(),
+                administrador.getSegundoApellido(), administrador.getEmail(), administrador.getTelefono(),
+                administrador.isActivo());
     }
 
     public static List<AdministradorResponse> toResponseList(final List<Administrador> administradores) {
