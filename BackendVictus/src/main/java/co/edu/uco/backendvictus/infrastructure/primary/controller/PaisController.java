@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.backendvictus.application.dto.pais.PaisCreateRequest;
@@ -20,12 +22,18 @@ import co.edu.uco.backendvictus.application.usecase.pais.CreatePaisUseCase;
 import co.edu.uco.backendvictus.application.usecase.pais.DeletePaisUseCase;
 import co.edu.uco.backendvictus.application.usecase.pais.ListPaisUseCase;
 import co.edu.uco.backendvictus.application.usecase.pais.UpdatePaisUseCase;
-import co.edu.uco.backendvictus.crosscutting.helpers.DataSanitizer;
+import co.edu.uco.backendvictus.crosscutting.helpers.BooleanHelper;
+import co.edu.uco.backendvictus.crosscutting.helpers.StringSanitizer;
+import co.edu.uco.backendvictus.crosscutting.helpers.TextHelper;
+import co.edu.uco.backendvictus.crosscutting.helpers.UUIDHelper;
+import co.edu.uco.backendvictus.domain.model.filter.PaisFilter;
+import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/paises")
+@Validated
 public class PaisController {
 
     private final CreatePaisUseCase createPaisUseCase;
@@ -42,22 +50,24 @@ public class PaisController {
     }
 
     @PostMapping("/crear")
-    public Mono<ResponseEntity<PaisResponse>> crear(@RequestBody final PaisCreateRequest request) {
-        final PaisCreateRequest sanitized = new PaisCreateRequest(DataSanitizer.sanitizeText(request.nombre()),
+    public Mono<ResponseEntity<PaisResponse>> crear(@Valid @RequestBody final PaisCreateRequest request) {
+        final PaisCreateRequest sanitized = new PaisCreateRequest(StringSanitizer.sanitize(request.nombre()),
                 request.activo());
         return createPaisUseCase.execute(sanitized)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
     }
 
     @GetMapping
-    public Flux<PaisResponse> listar() {
-        return listPaisUseCase.execute();
+    public Flux<PaisResponse> listar(@RequestParam(value = "nombre", required = false) final String nombre,
+            @RequestParam(value = "activo", required = false) final Boolean activo) {
+        final PaisFilter filter = new PaisFilter(nombre, activo);
+        return listPaisUseCase.execute(filter);
     }
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<PaisResponse>> actualizar(@PathVariable("id") final UUID id,
-            @RequestBody final PaisUpdateRequest request) {
-        final PaisUpdateRequest sanitized = new PaisUpdateRequest(id, DataSanitizer.sanitizeText(request.nombre()),
+            @Valid @RequestBody final PaisUpdateRequest request) {
+        final PaisUpdateRequest sanitized = new PaisUpdateRequest(id, StringSanitizer.sanitize(request.nombre()),
                 request.activo());
         return updatePaisUseCase.execute(sanitized).map(ResponseEntity::ok);
     }
@@ -65,5 +75,11 @@ public class PaisController {
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> eliminar(@PathVariable("id") final UUID id) {
         return deletePaisUseCase.execute(id).thenReturn(ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/dummy")
+    public Mono<ResponseEntity<PaisResponse>> dummy() {
+        final PaisResponse response = new PaisResponse(UUIDHelper.getDefault(), TextHelper.EMPTY, BooleanHelper.DEFAULT);
+        return Mono.just(ResponseEntity.ok(response));
     }
 }

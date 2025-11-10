@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import co.edu.uco.backendvictus.application.dto.ciudad.CiudadResponse;
 import co.edu.uco.backendvictus.application.mapper.CiudadApplicationMapper;
+import co.edu.uco.backendvictus.domain.model.filter.CiudadFilter;
 import co.edu.uco.backendvictus.domain.port.CiudadRepository;
 import reactor.core.publisher.Flux;
 
@@ -19,6 +20,10 @@ public class ListCiudadUseCase {
     }
 
     public Flux<CiudadResponse> execute() {
-        return ciudadRepository.findAll().map(mapper::toResponse);
+        return execute(CiudadFilter.empty());
+    }
+
+    public Flux<CiudadResponse> execute(final CiudadFilter filter) {
+        return ciudadRepository.findAll(filter).map(mapper::toResponse);
     }
 }
