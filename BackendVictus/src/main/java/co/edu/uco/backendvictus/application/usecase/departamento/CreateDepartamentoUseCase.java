@@ -33,9 +33,19 @@ public class CreateDepartamentoUseCase implements UseCase<DepartamentoCreateRequ
     public Mono<DepartamentoResponse> execute(final DepartamentoCreateRequest request) {
         return paisRepository.findById(request.paisId())
                 .switchIfEmpty(Mono.error(new ApplicationException("Pais no encontrado")))
-                .flatMap(pais -> {
+                .flatMap(pais -> Mono.defer(() -> {
                     final Departamento departamento = mapper.toDomain(UUID.randomUUID(), request, pais);
-                    return departamentoRepository.save(departamento);
-                }).map(mapper::toResponse);
+                    return ensureNombreDisponible(departamento.getNombre(), null)
+                            .then(departamentoRepository.save(departamento));
+                }))
+                .map(mapper::toResponse);
+    }
+
+    private Mono<Void> ensureNombreDisponible(final String nombre, final UUID excluirId) {
+        return departamentoRepository.findByNombreIgnoreCase(nombre)
+                .filter(existente -> excluirId == null || !existente.getId().equals(excluirId))
+                .flatMap(existente -> Mono.<Void>error(
+                        new ApplicationException("Ya existe un departamento con el nombre especificado")))
+                .switchIfEmpty(Mono.empty());
     }
 }
