@@ -21,7 +21,8 @@ public class DatabaseInitializer implements ApplicationListener<ApplicationReady
                     CREATE TABLE IF NOT EXISTS pais (
                         id UUID PRIMARY KEY,
                         nombre VARCHAR(150) NOT NULL,
-                        activo BOOLEAN NOT NULL
+                        activo BOOLEAN NOT NULL,
+                        CONSTRAINT uq_pais_nombre UNIQUE (nombre)
                     )
                     """,
             """
@@ -30,7 +31,8 @@ public class DatabaseInitializer implements ApplicationListener<ApplicationReady
                         pais_id UUID NOT NULL,
                         nombre VARCHAR(150) NOT NULL,
                         activo BOOLEAN NOT NULL,
-                        CONSTRAINT fk_departamento_pais FOREIGN KEY (pais_id) REFERENCES pais(id)
+                        CONSTRAINT fk_departamento_pais FOREIGN KEY (pais_id) REFERENCES pais(id),
+                        CONSTRAINT uq_departamento_nombre UNIQUE (nombre)
                     )
                     """,
             """
@@ -39,7 +41,8 @@ public class DatabaseInitializer implements ApplicationListener<ApplicationReady
                         departamento_id UUID NOT NULL,
                         nombre VARCHAR(150) NOT NULL,
                         activo BOOLEAN NOT NULL,
-                        CONSTRAINT fk_ciudad_departamento FOREIGN KEY (departamento_id) REFERENCES departamento(id)
+                        CONSTRAINT fk_ciudad_departamento FOREIGN KEY (departamento_id) REFERENCES departamento(id),
+                        CONSTRAINT uq_ciudad_nombre UNIQUE (nombre)
                     )
                     """,
             """
@@ -51,7 +54,9 @@ public class DatabaseInitializer implements ApplicationListener<ApplicationReady
                         segundo_apellido VARCHAR(150),
                         email VARCHAR(255) NOT NULL,
                         telefono VARCHAR(50),
-                        activo BOOLEAN NOT NULL
+                        activo BOOLEAN NOT NULL,
+                        CONSTRAINT uq_administrador_email UNIQUE (email),
+                        CONSTRAINT uq_administrador_telefono UNIQUE (telefono)
                     )
                     """,
             """
@@ -63,7 +68,8 @@ public class DatabaseInitializer implements ApplicationListener<ApplicationReady
                         administrador_id UUID NOT NULL,
                         activo BOOLEAN NOT NULL,
                         CONSTRAINT fk_conjunto_ciudad FOREIGN KEY (ciudad_id) REFERENCES ciudad(id),
-                        CONSTRAINT fk_conjunto_administrador FOREIGN KEY (administrador_id) REFERENCES administrador(id)
+                        CONSTRAINT fk_conjunto_administrador FOREIGN KEY (administrador_id) REFERENCES administrador(id),
+                        CONSTRAINT uq_conjunto_residencial_nombre UNIQUE (nombre)
                     )
                     """);
 
