@@ -49,6 +49,11 @@ public class ConjuntoResidencialRepositoryAdapter implements ConjuntoResidencial
     }
 
     @Override
+    public Mono<ConjuntoResidencial> findByNombreIgnoreCase(final String nombre) {
+        return conjuntoRepository.findByNombreIgnoreCase(nombre).flatMap(this::mapToDomain);
+    }
+
+    @Override
     public Flux<ConjuntoResidencial> findAll() {
         return findAll(candidate -> true);
     }
