@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import co.edu.uco.backendvictus.domain.model.Pais;
 import co.edu.uco.backendvictus.domain.port.PaisRepository;
 import co.edu.uco.backendvictus.domain.specification.Specification;
+import co.edu.uco.backendvictus.infrastructure.secondary.entity.PaisEntity;
 import co.edu.uco.backendvictus.infrastructure.secondary.mapper.PaisEntityMapper;
 import co.edu.uco.backendvictus.infrastructure.secondary.repository.PaisReactiveRepository;
 import reactor.core.publisher.Flux;
@@ -25,7 +26,11 @@ public class PaisRepositoryAdapter implements PaisRepository {
 
     @Override
     public Mono<Pais> save(final Pais pais) {
-        return repository.save(mapper.toEntity(pais)).map(mapper::toDomain);
+        return repository.existsById(pais.getId())
+                .flatMap(exists -> {
+                    final PaisEntity entity = mapper.toEntity(pais).markNew(!exists);
+                    return repository.save(entity).map(mapper::toDomain);
+                });
     }
 
     @Override

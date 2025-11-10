@@ -36,8 +36,11 @@ public class ConjuntoResidencialRepositoryAdapter implements ConjuntoResidencial
 
     @Override
     public Mono<ConjuntoResidencial> save(final ConjuntoResidencial conjuntoResidencial) {
-        final ConjuntoResidencialEntity entity = mapper.toEntity(conjuntoResidencial);
-        return conjuntoRepository.save(entity).flatMap(this::mapToDomain);
+        return conjuntoRepository.existsById(conjuntoResidencial.getId())
+                .flatMap(exists -> {
+                    final ConjuntoResidencialEntity entity = mapper.toEntity(conjuntoResidencial).markNew(!exists);
+                    return conjuntoRepository.save(entity).flatMap(this::mapToDomain);
+                });
     }
 
     @Override

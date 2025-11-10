@@ -34,8 +34,11 @@ public class DepartamentoRepositoryAdapter implements DepartamentoRepository {
 
     @Override
     public Mono<Departamento> save(final Departamento departamento) {
-        final DepartamentoEntity entity = mapper.toEntity(departamento);
-        return departamentoRepository.save(entity).flatMap(this::mapToDomain);
+        return departamentoRepository.existsById(departamento.getId())
+                .flatMap(exists -> {
+                    final DepartamentoEntity entity = mapper.toEntity(departamento).markNew(!exists);
+                    return departamentoRepository.save(entity).flatMap(this::mapToDomain);
+                });
     }
 
     @Override

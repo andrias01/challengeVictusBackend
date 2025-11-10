@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import co.edu.uco.backendvictus.domain.model.Administrador;
 import co.edu.uco.backendvictus.domain.port.AdministradorRepository;
 import co.edu.uco.backendvictus.domain.specification.Specification;
+import co.edu.uco.backendvictus.infrastructure.secondary.entity.AdministradorEntity;
 import co.edu.uco.backendvictus.infrastructure.secondary.mapper.AdministradorEntityMapper;
 import co.edu.uco.backendvictus.infrastructure.secondary.repository.AdministradorReactiveRepository;
 import reactor.core.publisher.Flux;
@@ -26,7 +27,11 @@ public class AdministradorRepositoryAdapter implements AdministradorRepository {
 
     @Override
     public Mono<Administrador> save(final Administrador administrador) {
-        return administradorRepository.save(mapper.toEntity(administrador)).map(mapper::toDomain);
+        return administradorRepository.existsById(administrador.getId())
+                .flatMap(exists -> {
+                    final AdministradorEntity entity = mapper.toEntity(administrador).markNew(!exists);
+                    return administradorRepository.save(entity).map(mapper::toDomain);
+                });
     }
 
     @Override

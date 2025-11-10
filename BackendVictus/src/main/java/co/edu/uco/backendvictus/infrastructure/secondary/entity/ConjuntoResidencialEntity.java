@@ -3,11 +3,13 @@ package co.edu.uco.backendvictus.infrastructure.secondary.entity;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("conjunto_residencial")
-public class ConjuntoResidencialEntity {
+public class ConjuntoResidencialEntity implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -27,6 +29,9 @@ public class ConjuntoResidencialEntity {
     @Column("activo")
     private boolean activo;
 
+    @Transient
+    private boolean newEntity = true;
+
     public ConjuntoResidencialEntity() {
         // R2DBC requires a default constructor
     }
@@ -39,8 +44,15 @@ public class ConjuntoResidencialEntity {
         this.ciudadId = ciudadId;
         this.administradorId = administradorId;
         this.activo = activo;
+        this.newEntity = true;
     }
 
+    public ConjuntoResidencialEntity markNew(final boolean newEntity) {
+        this.newEntity = newEntity;
+        return this;
+    }
+
+    @Override
     public UUID getId() {
         return id;
     }
@@ -87,5 +99,10 @@ public class ConjuntoResidencialEntity {
 
     public void setActivo(final boolean activo) {
         this.activo = activo;
+    }
+
+    @Override
+    public boolean isNew() {
+        return newEntity || id == null;
     }
 }

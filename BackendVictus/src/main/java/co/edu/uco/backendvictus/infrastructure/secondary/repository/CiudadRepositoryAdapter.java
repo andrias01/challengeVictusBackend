@@ -43,8 +43,11 @@ public class CiudadRepositoryAdapter implements CiudadRepository {
 
     @Override
     public Mono<Ciudad> save(final Ciudad ciudad) {
-        final CiudadEntity entity = mapper.toEntity(ciudad);
-        return ciudadRepository.save(entity).flatMap(this::mapToDomain);
+        return ciudadRepository.existsById(ciudad.getId())
+                .flatMap(exists -> {
+                    final CiudadEntity entity = mapper.toEntity(ciudad).markNew(!exists);
+                    return ciudadRepository.save(entity).flatMap(this::mapToDomain);
+                });
     }
 
     @Override
