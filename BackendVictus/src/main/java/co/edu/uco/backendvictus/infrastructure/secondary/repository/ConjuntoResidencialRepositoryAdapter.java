@@ -10,6 +10,7 @@ import co.edu.uco.backendvictus.domain.model.ConjuntoResidencial;
 import co.edu.uco.backendvictus.domain.port.AdministradorRepository;
 import co.edu.uco.backendvictus.domain.port.CiudadRepository;
 import co.edu.uco.backendvictus.domain.port.ConjuntoResidencialRepository;
+import co.edu.uco.backendvictus.domain.specification.Specification;
 import co.edu.uco.backendvictus.infrastructure.secondary.entity.ConjuntoResidencialEntity;
 import co.edu.uco.backendvictus.infrastructure.secondary.repository.ConjuntoResidencialReactiveRepository;
 import co.edu.uco.backendvictus.infrastructure.secondary.mapper.ConjuntoResidencialEntityMapper;
@@ -35,8 +36,11 @@ public class ConjuntoResidencialRepositoryAdapter implements ConjuntoResidencial
 
     @Override
     public Mono<ConjuntoResidencial> save(final ConjuntoResidencial conjuntoResidencial) {
-        final ConjuntoResidencialEntity entity = mapper.toEntity(conjuntoResidencial);
-        return conjuntoRepository.save(entity).flatMap(this::mapToDomain);
+        return conjuntoRepository.existsById(conjuntoResidencial.getId())
+                .flatMap(exists -> {
+                    final ConjuntoResidencialEntity entity = mapper.toEntity(conjuntoResidencial).markNew(!exists);
+                    return conjuntoRepository.save(entity).flatMap(this::mapToDomain);
+                });
     }
 
     @Override
@@ -46,7 +50,14 @@ public class ConjuntoResidencialRepositoryAdapter implements ConjuntoResidencial
 
     @Override
     public Flux<ConjuntoResidencial> findAll() {
-        return conjuntoRepository.findAll().flatMap(this::mapToDomain);
+        return findAll(candidate -> true);
+    }
+
+    @Override
+    public Flux<ConjuntoResidencial> findAll(final Specification<ConjuntoResidencial> specification) {
+        return conjuntoRepository.findAll()
+                .flatMap(this::mapToDomain)
+                .filter(specification::isSatisfiedBy);
     }
 
     @Override

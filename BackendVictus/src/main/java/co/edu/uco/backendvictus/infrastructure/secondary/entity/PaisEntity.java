@@ -3,11 +3,13 @@ package co.edu.uco.backendvictus.infrastructure.secondary.entity;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("pais")
-public class PaisEntity {
+public class PaisEntity implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -18,6 +20,9 @@ public class PaisEntity {
     @Column("activo")
     private boolean activo;
 
+    @Transient
+    private boolean newEntity = true;
+
     public PaisEntity() {
         // R2DBC requires a default constructor
     }
@@ -26,8 +31,15 @@ public class PaisEntity {
         this.id = id;
         this.nombre = nombre;
         this.activo = activo;
+        this.newEntity = true;
     }
 
+    public PaisEntity markNew(final boolean newEntity) {
+        this.newEntity = newEntity;
+        return this;
+    }
+
+    @Override
     public UUID getId() {
         return id;
     }
@@ -50,5 +62,10 @@ public class PaisEntity {
 
     public void setActivo(final boolean activo) {
         this.activo = activo;
+    }
+
+    @Override
+    public boolean isNew() {
+        return newEntity || id == null;
     }
 }

@@ -3,11 +3,13 @@ package co.edu.uco.backendvictus.infrastructure.secondary.entity;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("administrador")
-public class AdministradorEntity {
+public class AdministradorEntity implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -33,6 +35,9 @@ public class AdministradorEntity {
     @Column("activo")
     private boolean activo;
 
+    @Transient
+    private boolean newEntity = true;
+
     public AdministradorEntity() {
         // R2DBC requires a default constructor
     }
@@ -48,8 +53,15 @@ public class AdministradorEntity {
         this.email = email;
         this.telefono = telefono;
         this.activo = activo;
+        this.newEntity = true;
     }
 
+    public AdministradorEntity markNew(final boolean newEntity) {
+        this.newEntity = newEntity;
+        return this;
+    }
+
+    @Override
     public UUID getId() {
         return id;
     }
@@ -112,5 +124,10 @@ public class AdministradorEntity {
 
     public void setActivo(final boolean activo) {
         this.activo = activo;
+    }
+
+    @Override
+    public boolean isNew() {
+        return newEntity || id == null;
     }
 }

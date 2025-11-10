@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import co.edu.uco.backendvictus.domain.model.Ciudad;
 import co.edu.uco.backendvictus.domain.model.Departamento;
 import co.edu.uco.backendvictus.domain.port.CiudadRepository;
+import co.edu.uco.backendvictus.domain.specification.Specification;
 import co.edu.uco.backendvictus.infrastructure.secondary.entity.CiudadEntity;
 import co.edu.uco.backendvictus.infrastructure.secondary.entity.DepartamentoEntity;
 import co.edu.uco.backendvictus.infrastructure.secondary.repository.CiudadReactiveRepository;
@@ -42,8 +43,11 @@ public class CiudadRepositoryAdapter implements CiudadRepository {
 
     @Override
     public Mono<Ciudad> save(final Ciudad ciudad) {
-        final CiudadEntity entity = mapper.toEntity(ciudad);
-        return ciudadRepository.save(entity).flatMap(this::mapToDomain);
+        return ciudadRepository.existsById(ciudad.getId())
+                .flatMap(exists -> {
+                    final CiudadEntity entity = mapper.toEntity(ciudad).markNew(!exists);
+                    return ciudadRepository.save(entity).flatMap(this::mapToDomain);
+                });
     }
 
     @Override
@@ -53,7 +57,14 @@ public class CiudadRepositoryAdapter implements CiudadRepository {
 
     @Override
     public Flux<Ciudad> findAll() {
-        return ciudadRepository.findAll().flatMap(this::mapToDomain);
+        return findAll(candidate -> true);
+    }
+
+    @Override
+    public Flux<Ciudad> findAll(final Specification<Ciudad> specification) {
+        return ciudadRepository.findAll()
+                .flatMap(this::mapToDomain)
+                .filter(specification::isSatisfiedBy);
     }
 
     @Override

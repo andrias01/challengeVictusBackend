@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import co.edu.uco.backendvictus.application.dto.conjunto.ConjuntoResponse;
 import co.edu.uco.backendvictus.application.mapper.ConjuntoApplicationMapper;
+import co.edu.uco.backendvictus.domain.model.filter.ConjuntoResidencialFilter;
 import co.edu.uco.backendvictus.domain.port.ConjuntoResidencialRepository;
 import reactor.core.publisher.Flux;
 
@@ -20,6 +21,10 @@ public class ListConjuntoUseCase {
     }
 
     public Flux<ConjuntoResponse> execute() {
-        return conjuntoRepository.findAll().map(mapper::toResponse);
+        return execute(ConjuntoResidencialFilter.empty());
+    }
+
+    public Flux<ConjuntoResponse> execute(final ConjuntoResidencialFilter filter) {
+        return conjuntoRepository.findAll(filter).map(mapper::toResponse);
     }
 }
