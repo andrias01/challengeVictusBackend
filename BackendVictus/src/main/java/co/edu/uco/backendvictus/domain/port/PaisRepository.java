@@ -15,6 +15,8 @@ public interface PaisRepository {
 
     Mono<Pais> findById(UUID id);
 
+    Mono<Pais> findByNombreIgnoreCase(String nombre);
+
     Flux<Pais> findAll();
 
     Flux<Pais> findAll(Specification<Pais> specification);

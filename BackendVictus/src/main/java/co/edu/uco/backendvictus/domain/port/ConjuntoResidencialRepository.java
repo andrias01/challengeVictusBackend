@@ -15,6 +15,8 @@ public interface ConjuntoResidencialRepository {
 
     Mono<ConjuntoResidencial> findById(UUID id);
 
+    Mono<ConjuntoResidencial> findByNombreIgnoreCase(String nombre);
+
     Flux<ConjuntoResidencial> findAll();
 
     Flux<ConjuntoResidencial> findAll(Specification<ConjuntoResidencial> specification);

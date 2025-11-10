@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ConjuntoUpdateRequest(
-        @NotNull(message = "El identificador del conjunto es obligatorio") UUID id,
         @NotNull(message = "La ciudad es obligatoria") UUID ciudadId,
         @NotNull(message = "El administrador es obligatorio") UUID administradorId,
         @NotBlank(message = "El nombre del conjunto es obligatorio")

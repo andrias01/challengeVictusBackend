@@ -1,14 +1,10 @@
 package co.edu.uco.backendvictus.application.dto.administrador;
 
-import java.util.UUID;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record AdministradorUpdateRequest(
-        @NotNull(message = "El identificador del administrador es obligatorio") UUID id,
         @NotBlank(message = "El primer nombre es obligatorio")
         @Size(max = 60, message = "El primer nombre no puede superar 60 caracteres") String primerNombre,
         @Size(max = 100, message = "Los segundos nombres no pueden superar 100 caracteres") String segundoNombres,

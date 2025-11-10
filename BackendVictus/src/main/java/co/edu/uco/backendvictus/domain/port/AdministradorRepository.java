@@ -15,6 +15,10 @@ public interface AdministradorRepository {
 
     Mono<Administrador> findById(UUID id);
 
+    Mono<Administrador> findByEmailIgnoreCase(String email);
+
+    Mono<Administrador> findByTelefono(String telefono);
+
     Flux<Administrador> findAll();
 
     Flux<Administrador> findAll(Specification<Administrador> specification);

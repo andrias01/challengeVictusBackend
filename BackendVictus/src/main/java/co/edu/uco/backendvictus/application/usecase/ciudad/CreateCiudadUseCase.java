@@ -33,9 +33,19 @@ public class CreateCiudadUseCase implements UseCase<CiudadCreateRequest, CiudadR
     public Mono<CiudadResponse> execute(final CiudadCreateRequest request) {
         return departamentoRepository.findById(request.departamentoId())
                 .switchIfEmpty(Mono.error(new ApplicationException("Departamento no encontrado")))
-                .flatMap(departamento -> {
+                .flatMap(departamento -> Mono.defer(() -> {
                     final Ciudad ciudad = mapper.toDomain(UUID.randomUUID(), request, departamento);
-                    return ciudadRepository.save(ciudad);
-                }).map(mapper::toResponse);
+                    return ensureNombreDisponible(ciudad.getNombre(), null)
+                            .then(ciudadRepository.save(ciudad));
+                }))
+                .map(mapper::toResponse);
+    }
+
+    private Mono<Void> ensureNombreDisponible(final String nombre, final UUID excluirId) {
+        return ciudadRepository.findByNombreIgnoreCase(nombre)
+                .filter(existente -> excluirId == null || !existente.getId().equals(excluirId))
+                .flatMap(existente -> Mono.<Void>error(
+                        new ApplicationException("Ya existe una ciudad con el nombre especificado")))
+                .switchIfEmpty(Mono.empty());
     }
 }
