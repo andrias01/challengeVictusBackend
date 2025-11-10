@@ -15,6 +15,8 @@ public interface DepartamentoRepository {
 
     Mono<Departamento> findById(UUID id);
 
+    Mono<Departamento> findByNombreIgnoreCase(String nombre);
+
     Flux<Departamento> findAll();
 
     Flux<Departamento> findAll(Specification<Departamento> specification);

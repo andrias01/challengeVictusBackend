@@ -40,6 +40,16 @@ public class AdministradorRepositoryAdapter implements AdministradorRepository {
     }
 
     @Override
+    public Mono<Administrador> findByEmailIgnoreCase(final String email) {
+        return administradorRepository.findByEmailIgnoreCase(email).map(mapper::toDomain);
+    }
+
+    @Override
+    public Mono<Administrador> findByTelefono(final String telefono) {
+        return administradorRepository.findByTelefono(telefono).map(mapper::toDomain);
+    }
+
+    @Override
     public Flux<Administrador> findAll() {
         return findAll(candidate -> true);
     }
