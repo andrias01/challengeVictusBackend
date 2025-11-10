@@ -14,6 +14,7 @@ public record AdministradorUpdateRequest(
         @NotBlank(message = "El correo electronico es obligatorio")
         @Email(message = "El correo electronico no es valido")
         @Size(max = 120, message = "El correo electronico no puede superar 120 caracteres") String email,
+        @NotBlank(message = "El telefono es obligatorio")
         @Size(max = 20, message = "El telefono no puede superar 20 caracteres") String telefono,
         boolean activo) {
 }
