@@ -15,6 +15,8 @@ public interface CiudadRepository {
 
     Mono<Ciudad> findById(UUID id);
 
+    Mono<Ciudad> findByNombreIgnoreCase(String nombre);
+
     Flux<Ciudad> findAll();
 
     Flux<Ciudad> findAll(Specification<Ciudad> specification);

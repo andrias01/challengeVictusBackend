@@ -42,10 +42,20 @@ public class CreateConjuntoUseCase implements UseCase<ConjuntoCreateRequest, Con
                 .switchIfEmpty(Mono.error(new ApplicationException("Administrador no encontrado")));
 
         return Mono.zip(ciudadMono, administradorMono)
-                .flatMap(tuple -> {
+                .flatMap(tuple -> Mono.defer(() -> {
                     final ConjuntoResidencial conjuntoResidencial = mapper.toDomain(UUID.randomUUID(), request,
                             tuple.getT1(), tuple.getT2());
-                    return conjuntoRepository.save(conjuntoResidencial);
-                }).map(mapper::toResponse);
+                    return ensureNombreDisponible(conjuntoResidencial.getNombre(), null)
+                            .then(conjuntoRepository.save(conjuntoResidencial));
+                }))
+                .map(mapper::toResponse);
+    }
+
+    private Mono<Void> ensureNombreDisponible(final String nombre, final UUID excluirId) {
+        return conjuntoRepository.findByNombreIgnoreCase(nombre)
+                .filter(existente -> excluirId == null || !existente.getId().equals(excluirId))
+                .flatMap(existente -> Mono.<Void>error(
+                        new ApplicationException("Ya existe un conjunto residencial con el nombre especificado")))
+                .switchIfEmpty(Mono.empty());
     }
 }

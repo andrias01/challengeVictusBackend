@@ -39,6 +39,11 @@ public class PaisRepositoryAdapter implements PaisRepository {
     }
 
     @Override
+    public Mono<Pais> findByNombreIgnoreCase(final String nombre) {
+        return repository.findByNombreIgnoreCase(nombre).map(mapper::toDomain);
+    }
+
+    @Override
     public Flux<Pais> findAll() {
         return findAll(candidate -> true);
     }

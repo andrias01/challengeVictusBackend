@@ -47,6 +47,11 @@ public class DepartamentoRepositoryAdapter implements DepartamentoRepository {
     }
 
     @Override
+    public Mono<Departamento> findByNombreIgnoreCase(final String nombre) {
+        return departamentoRepository.findByNombreIgnoreCase(nombre).flatMap(this::mapToDomain);
+    }
+
+    @Override
     public Flux<Departamento> findAll() {
         return findAll(candidate -> true);
     }

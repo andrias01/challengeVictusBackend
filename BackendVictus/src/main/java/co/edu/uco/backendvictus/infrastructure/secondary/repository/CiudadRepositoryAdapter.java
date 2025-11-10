@@ -56,6 +56,11 @@ public class CiudadRepositoryAdapter implements CiudadRepository {
     }
 
     @Override
+    public Mono<Ciudad> findByNombreIgnoreCase(final String nombre) {
+        return ciudadRepository.findByNombreIgnoreCase(nombre).flatMap(this::mapToDomain);
+    }
+
+    @Override
     public Flux<Ciudad> findAll() {
         return findAll(candidate -> true);
     }
