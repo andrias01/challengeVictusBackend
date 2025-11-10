@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import co.edu.uco.backendvictus.domain.model.Pais;
 import co.edu.uco.backendvictus.domain.port.PaisRepository;
+import co.edu.uco.backendvictus.domain.specification.Specification;
 import co.edu.uco.backendvictus.infrastructure.secondary.mapper.PaisEntityMapper;
 import co.edu.uco.backendvictus.infrastructure.secondary.repository.PaisReactiveRepository;
 import reactor.core.publisher.Flux;
@@ -34,7 +35,14 @@ public class PaisRepositoryAdapter implements PaisRepository {
 
     @Override
     public Flux<Pais> findAll() {
-        return repository.findAll().map(mapper::toDomain);
+        return findAll(candidate -> true);
+    }
+
+    @Override
+    public Flux<Pais> findAll(final Specification<Pais> specification) {
+        return repository.findAll()
+                .map(mapper::toDomain)
+                .filter(specification::isSatisfiedBy);
     }
 
     @Override

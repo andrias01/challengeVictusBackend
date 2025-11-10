@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import co.edu.uco.backendvictus.application.dto.departamento.DepartamentoResponse;
 import co.edu.uco.backendvictus.application.mapper.DepartamentoApplicationMapper;
+import co.edu.uco.backendvictus.domain.model.filter.DepartamentoFilter;
 import co.edu.uco.backendvictus.domain.port.DepartamentoRepository;
 import reactor.core.publisher.Flux;
 
@@ -20,6 +21,10 @@ public class ListDepartamentoUseCase {
     }
 
     public Flux<DepartamentoResponse> execute() {
-        return departamentoRepository.findAll().map(mapper::toResponse);
+        return execute(DepartamentoFilter.empty());
+    }
+
+    public Flux<DepartamentoResponse> execute(final DepartamentoFilter filter) {
+        return departamentoRepository.findAll(filter).map(mapper::toResponse);
     }
 }

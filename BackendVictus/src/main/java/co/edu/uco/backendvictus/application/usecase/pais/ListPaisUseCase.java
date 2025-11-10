@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import co.edu.uco.backendvictus.application.dto.pais.PaisResponse;
 import co.edu.uco.backendvictus.application.mapper.PaisApplicationMapper;
+import co.edu.uco.backendvictus.domain.model.filter.PaisFilter;
 import co.edu.uco.backendvictus.domain.port.PaisRepository;
 import reactor.core.publisher.Flux;
 
@@ -19,6 +20,10 @@ public class ListPaisUseCase {
     }
 
     public Flux<PaisResponse> execute() {
-        return repository.findAll().map(mapper::toResponse);
+        return execute(PaisFilter.empty());
+    }
+
+    public Flux<PaisResponse> execute(final PaisFilter filter) {
+        return repository.findAll(filter).map(mapper::toResponse);
     }
 }

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.backendvictus.application.dto.departamento.DepartamentoCreateRequest;
@@ -20,12 +22,18 @@ import co.edu.uco.backendvictus.application.usecase.departamento.CreateDepartame
 import co.edu.uco.backendvictus.application.usecase.departamento.DeleteDepartamentoUseCase;
 import co.edu.uco.backendvictus.application.usecase.departamento.ListDepartamentoUseCase;
 import co.edu.uco.backendvictus.application.usecase.departamento.UpdateDepartamentoUseCase;
-import co.edu.uco.backendvictus.crosscutting.helpers.DataSanitizer;
+import co.edu.uco.backendvictus.crosscutting.helpers.BooleanHelper;
+import co.edu.uco.backendvictus.crosscutting.helpers.StringSanitizer;
+import co.edu.uco.backendvictus.crosscutting.helpers.TextHelper;
+import co.edu.uco.backendvictus.crosscutting.helpers.UUIDHelper;
+import co.edu.uco.backendvictus.domain.model.filter.DepartamentoFilter;
+import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/departamentos")
+@Validated
 public class DepartamentoController {
 
     private final CreateDepartamentoUseCase createDepartamentoUseCase;
@@ -44,28 +52,38 @@ public class DepartamentoController {
     }
 
     @PostMapping("/crear")
-    public Mono<ResponseEntity<DepartamentoResponse>> crear(@RequestBody final DepartamentoCreateRequest request) {
+    public Mono<ResponseEntity<DepartamentoResponse>> crear(@Valid @RequestBody final DepartamentoCreateRequest request) {
         final DepartamentoCreateRequest sanitized = new DepartamentoCreateRequest(request.paisId(),
-                DataSanitizer.sanitizeText(request.nombre()), request.activo());
+                StringSanitizer.sanitize(request.nombre()), request.activo());
         return createDepartamentoUseCase.execute(sanitized)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
     }
 
     @GetMapping
-    public Flux<DepartamentoResponse> listar() {
-        return listDepartamentoUseCase.execute();
+    public Flux<DepartamentoResponse> listar(@RequestParam(value = "nombre", required = false) final String nombre,
+            @RequestParam(value = "paisId", required = false) final UUID paisId,
+            @RequestParam(value = "activo", required = false) final Boolean activo) {
+        final DepartamentoFilter filter = new DepartamentoFilter(nombre, paisId, activo);
+        return listDepartamentoUseCase.execute(filter);
     }
 
     @PutMapping("/{id}")
     public Mono<ResponseEntity<DepartamentoResponse>> actualizar(@PathVariable("id") final UUID id,
-            @RequestBody final DepartamentoUpdateRequest request) {
+            @Valid @RequestBody final DepartamentoUpdateRequest request) {
         final DepartamentoUpdateRequest sanitized = new DepartamentoUpdateRequest(id, request.paisId(),
-                DataSanitizer.sanitizeText(request.nombre()), request.activo());
+                StringSanitizer.sanitize(request.nombre()), request.activo());
         return updateDepartamentoUseCase.execute(sanitized).map(ResponseEntity::ok);
     }
 
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> eliminar(@PathVariable("id") final UUID id) {
         return deleteDepartamentoUseCase.execute(id).thenReturn(ResponseEntity.noContent().build());
+    }
+
+    @GetMapping("/dummy")
+    public Mono<ResponseEntity<DepartamentoResponse>> dummy() {
+        final DepartamentoResponse response = new DepartamentoResponse(UUIDHelper.getDefault(), UUIDHelper.getDefault(),
+                TextHelper.EMPTY, BooleanHelper.DEFAULT);
+        return Mono.just(ResponseEntity.ok(response));
     }
 }

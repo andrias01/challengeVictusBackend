@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import co.edu.uco.backendvictus.domain.model.Administrador;
 import co.edu.uco.backendvictus.domain.port.AdministradorRepository;
+import co.edu.uco.backendvictus.domain.specification.Specification;
 import co.edu.uco.backendvictus.infrastructure.secondary.mapper.AdministradorEntityMapper;
 import co.edu.uco.backendvictus.infrastructure.secondary.repository.AdministradorReactiveRepository;
 import reactor.core.publisher.Flux;
@@ -35,7 +36,14 @@ public class AdministradorRepositoryAdapter implements AdministradorRepository {
 
     @Override
     public Flux<Administrador> findAll() {
-        return administradorRepository.findAll().map(mapper::toDomain);
+        return findAll(candidate -> true);
+    }
+
+    @Override
+    public Flux<Administrador> findAll(final Specification<Administrador> specification) {
+        return administradorRepository.findAll()
+                .map(mapper::toDomain)
+                .filter(specification::isSatisfiedBy);
     }
 
     @Override

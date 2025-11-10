@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import co.edu.uco.backendvictus.domain.model.Departamento;
 import co.edu.uco.backendvictus.domain.port.DepartamentoRepository;
+import co.edu.uco.backendvictus.domain.specification.Specification;
 import co.edu.uco.backendvictus.infrastructure.secondary.entity.DepartamentoEntity;
 import co.edu.uco.backendvictus.infrastructure.secondary.repository.DepartamentoReactiveRepository;
 import co.edu.uco.backendvictus.infrastructure.secondary.repository.PaisReactiveRepository;
@@ -44,7 +45,14 @@ public class DepartamentoRepositoryAdapter implements DepartamentoRepository {
 
     @Override
     public Flux<Departamento> findAll() {
-        return departamentoRepository.findAll().flatMap(this::mapToDomain);
+        return findAll(candidate -> true);
+    }
+
+    @Override
+    public Flux<Departamento> findAll(final Specification<Departamento> specification) {
+        return departamentoRepository.findAll()
+                .flatMap(this::mapToDomain)
+                .filter(specification::isSatisfiedBy);
     }
 
     @Override
