@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import co.edu.uco.backendvictus.application.dto.ciudad.CiudadResponse;
-import co.edu.uco.backendvictus.application.dto.ciudad.CiudadUpdateRequest;
+import co.edu.uco.backendvictus.application.dto.ciudad.CiudadUpdateCommand;
 import co.edu.uco.backendvictus.application.dto.common.ChangeResponseDTO;
 import co.edu.uco.backendvictus.application.mapper.CiudadApplicationMapper;
 import co.edu.uco.backendvictus.application.usecase.UseCase;
@@ -17,7 +17,7 @@ import co.edu.uco.backendvictus.domain.port.DepartamentoRepository;
 import reactor.core.publisher.Mono;
 
 @Service
-public class UpdateCiudadUseCase implements UseCase<CiudadUpdateRequest, ChangeResponseDTO<CiudadResponse>> {
+public class UpdateCiudadUseCase implements UseCase<CiudadUpdateCommand, ChangeResponseDTO<CiudadResponse>> {
 
     private final CiudadRepository ciudadRepository;
     private final DepartamentoRepository departamentoRepository;
@@ -31,14 +31,14 @@ public class UpdateCiudadUseCase implements UseCase<CiudadUpdateRequest, ChangeR
     }
 
     @Override
-    public Mono<ChangeResponseDTO<CiudadResponse>> execute(final CiudadUpdateRequest request) {
-        return ciudadRepository.findById(request.id())
+    public Mono<ChangeResponseDTO<CiudadResponse>> execute(final CiudadUpdateCommand command) {
+        return ciudadRepository.findById(command.id())
                 .switchIfEmpty(Mono.error(new ApplicationException("Ciudad no encontrada")))
-                .flatMap(existente -> departamentoRepository.findById(request.departamentoId())
+                .flatMap(existente -> departamentoRepository.findById(command.departamentoId())
                         .switchIfEmpty(Mono.error(new ApplicationException("Departamento no encontrado")))
                         .flatMap(departamento -> {
-                            final Ciudad actualizado = existente.update(request.nombre(), departamento,
-                                    request.activo());
+                            final Ciudad actualizado = existente.update(command.nombre(), departamento,
+                                    command.activo());
                             return ensureNombreDisponible(actualizado.getNombre(), existente.getId())
                                     .then(Mono.defer(() -> {
                                         final CiudadResponse before = mapper.toResponse(existente);

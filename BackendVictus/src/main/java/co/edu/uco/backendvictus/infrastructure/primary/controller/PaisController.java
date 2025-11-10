@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.backendvictus.application.dto.pais.PaisCreateRequest;
 import co.edu.uco.backendvictus.application.dto.pais.PaisResponse;
+import co.edu.uco.backendvictus.application.dto.pais.PaisUpdateCommand;
 import co.edu.uco.backendvictus.application.dto.pais.PaisUpdateRequest;
 import co.edu.uco.backendvictus.application.dto.common.ChangeResponseDTO;
 import co.edu.uco.backendvictus.application.dto.common.ResponseDTO;
@@ -84,9 +85,10 @@ public class PaisController {
     public Mono<ResponseEntity<ResponseDTO<ChangeResponseDTO<PaisResponse>>>> actualizar(
             @PathVariable("id") final UUID id,
             @Valid @RequestBody final PaisUpdateRequest request) {
-        final PaisUpdateRequest sanitized = new PaisUpdateRequest(id, StringSanitizer.sanitize(request.nombre()),
+        final PaisUpdateRequest sanitized = new PaisUpdateRequest(StringSanitizer.sanitize(request.nombre()),
                 request.activo());
-        return updatePaisUseCase.execute(sanitized)
+        final PaisUpdateCommand command = new PaisUpdateCommand(id, sanitized.nombre(), sanitized.activo());
+        return updatePaisUseCase.execute(command)
                 .map(change -> ResponseEntity.ok(ResponseDTO.of(
                         String.format("País actualizado: antes=%s, después=%s", change.before(), change.after()),
                         change)));

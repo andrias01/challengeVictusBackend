@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.backendvictus.application.dto.ciudad.CiudadCreateRequest;
 import co.edu.uco.backendvictus.application.dto.ciudad.CiudadResponse;
+import co.edu.uco.backendvictus.application.dto.ciudad.CiudadUpdateCommand;
 import co.edu.uco.backendvictus.application.dto.ciudad.CiudadUpdateRequest;
 import co.edu.uco.backendvictus.application.dto.common.ChangeResponseDTO;
 import co.edu.uco.backendvictus.application.dto.common.ResponseDTO;
@@ -86,9 +87,11 @@ public class CiudadController {
     public Mono<ResponseEntity<ResponseDTO<ChangeResponseDTO<CiudadResponse>>>> actualizar(
             @PathVariable("id") final UUID id,
             @Valid @RequestBody final CiudadUpdateRequest request) {
-        final CiudadUpdateRequest sanitized = new CiudadUpdateRequest(id, request.departamentoId(),
+        final CiudadUpdateRequest sanitized = new CiudadUpdateRequest(request.departamentoId(),
                 StringSanitizer.sanitize(request.nombre()), request.activo());
-        return updateCiudadUseCase.execute(sanitized)
+        final CiudadUpdateCommand command = new CiudadUpdateCommand(id, sanitized.departamentoId(),
+                sanitized.nombre(), sanitized.activo());
+        return updateCiudadUseCase.execute(command)
                 .map(change -> ResponseEntity.ok(ResponseDTO.of(
                         String.format("Ciudad actualizada: antes=%s, después=%s", change.before(), change.after()),
                         change)));

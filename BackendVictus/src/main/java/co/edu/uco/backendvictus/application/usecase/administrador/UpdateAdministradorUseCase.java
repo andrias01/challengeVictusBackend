@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import co.edu.uco.backendvictus.application.dto.administrador.AdministradorResponse;
-import co.edu.uco.backendvictus.application.dto.administrador.AdministradorUpdateRequest;
+import co.edu.uco.backendvictus.application.dto.administrador.AdministradorUpdateCommand;
 import co.edu.uco.backendvictus.application.dto.common.ChangeResponseDTO;
 import co.edu.uco.backendvictus.application.mapper.AdministradorApplicationMapper;
 import co.edu.uco.backendvictus.application.usecase.UseCase;
@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class UpdateAdministradorUseCase
-        implements UseCase<AdministradorUpdateRequest, ChangeResponseDTO<AdministradorResponse>> {
+        implements UseCase<AdministradorUpdateCommand, ChangeResponseDTO<AdministradorResponse>> {
 
     private final AdministradorRepository administradorRepository;
     private final AdministradorApplicationMapper mapper;
@@ -29,13 +29,13 @@ public class UpdateAdministradorUseCase
     }
 
     @Override
-    public Mono<ChangeResponseDTO<AdministradorResponse>> execute(final AdministradorUpdateRequest request) {
-        return administradorRepository.findById(request.id())
+    public Mono<ChangeResponseDTO<AdministradorResponse>> execute(final AdministradorUpdateCommand command) {
+        return administradorRepository.findById(command.id())
                 .switchIfEmpty(Mono.error(new ApplicationException("Administrador no encontrado")))
                 .flatMap(existente -> {
-                    final Administrador actualizado = existente.update(request.primerNombre(),
-                            request.segundoNombres(), request.primerApellido(), request.segundoApellido(),
-                            request.email(), request.telefono(), request.activo());
+                    final Administrador actualizado = existente.update(command.primerNombre(),
+                            command.segundoNombres(), command.primerApellido(), command.segundoApellido(),
+                            command.email(), command.telefono(), command.activo());
                     return ensureEmailDisponible(actualizado.getEmail(), existente.getId())
                             .then(ensureTelefonoDisponible(actualizado.getTelefono(), existente.getId()))
                             .then(Mono.defer(() -> {

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.backendvictus.application.dto.departamento.DepartamentoCreateRequest;
 import co.edu.uco.backendvictus.application.dto.departamento.DepartamentoResponse;
+import co.edu.uco.backendvictus.application.dto.departamento.DepartamentoUpdateCommand;
 import co.edu.uco.backendvictus.application.dto.departamento.DepartamentoUpdateRequest;
 import co.edu.uco.backendvictus.application.dto.common.ChangeResponseDTO;
 import co.edu.uco.backendvictus.application.dto.common.ResponseDTO;
@@ -88,9 +89,11 @@ public class DepartamentoController {
     public Mono<ResponseEntity<ResponseDTO<ChangeResponseDTO<DepartamentoResponse>>>> actualizar(
             @PathVariable("id") final UUID id,
             @Valid @RequestBody final DepartamentoUpdateRequest request) {
-        final DepartamentoUpdateRequest sanitized = new DepartamentoUpdateRequest(id, request.paisId(),
+        final DepartamentoUpdateRequest sanitized = new DepartamentoUpdateRequest(request.paisId(),
                 StringSanitizer.sanitize(request.nombre()), request.activo());
-        return updateDepartamentoUseCase.execute(sanitized)
+        final DepartamentoUpdateCommand command = new DepartamentoUpdateCommand(id, sanitized.paisId(),
+                sanitized.nombre(), sanitized.activo());
+        return updateDepartamentoUseCase.execute(command)
                 .map(change -> ResponseEntity.ok(ResponseDTO.of(
                         String.format("Departamento actualizado: antes=%s, después=%s", change.before(),
                                 change.after()),

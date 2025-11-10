@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.backendvictus.application.dto.administrador.AdministradorCreateRequest;
 import co.edu.uco.backendvictus.application.dto.administrador.AdministradorResponse;
+import co.edu.uco.backendvictus.application.dto.administrador.AdministradorUpdateCommand;
 import co.edu.uco.backendvictus.application.dto.administrador.AdministradorUpdateRequest;
 import co.edu.uco.backendvictus.application.dto.common.ChangeResponseDTO;
 import co.edu.uco.backendvictus.application.dto.common.ResponseDTO;
@@ -90,12 +91,15 @@ public class AdministradorController {
     public Mono<ResponseEntity<ResponseDTO<ChangeResponseDTO<AdministradorResponse>>>> actualizar(
             @PathVariable("id") final UUID id,
             @Valid @RequestBody final AdministradorUpdateRequest request) {
-        final AdministradorUpdateRequest sanitized = new AdministradorUpdateRequest(id,
+        final AdministradorUpdateRequest sanitized = new AdministradorUpdateRequest(
                 StringSanitizer.sanitize(request.primerNombre()), StringSanitizer.sanitize(request.segundoNombres()),
                 StringSanitizer.sanitize(request.primerApellido()), StringSanitizer.sanitize(request.segundoApellido()),
                 StringSanitizer.sanitize(request.email()), StringSanitizer.sanitize(request.telefono()),
                 request.activo());
-        return updateAdministradorUseCase.execute(sanitized)
+        final AdministradorUpdateCommand command = new AdministradorUpdateCommand(id, sanitized.primerNombre(),
+                sanitized.segundoNombres(), sanitized.primerApellido(), sanitized.segundoApellido(),
+                sanitized.email(), sanitized.telefono(), sanitized.activo());
+        return updateAdministradorUseCase.execute(command)
                 .map(change -> ResponseEntity.ok(ResponseDTO.of(
                         String.format("Administrador actualizado: antes=%s, después=%s", change.before(),
                                 change.after()),

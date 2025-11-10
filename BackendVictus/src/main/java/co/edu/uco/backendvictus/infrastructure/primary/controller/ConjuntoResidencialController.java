@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uco.backendvictus.application.dto.conjunto.ConjuntoCreateRequest;
 import co.edu.uco.backendvictus.application.dto.conjunto.ConjuntoResponse;
+import co.edu.uco.backendvictus.application.dto.conjunto.ConjuntoUpdateCommand;
 import co.edu.uco.backendvictus.application.dto.conjunto.ConjuntoUpdateRequest;
 import co.edu.uco.backendvictus.application.dto.common.ChangeResponseDTO;
 import co.edu.uco.backendvictus.application.dto.common.ResponseDTO;
@@ -89,10 +90,12 @@ public class ConjuntoResidencialController {
     public Mono<ResponseEntity<ResponseDTO<ChangeResponseDTO<ConjuntoResponse>>>> actualizar(
             @PathVariable("id") final UUID id,
             @Valid @RequestBody final ConjuntoUpdateRequest request) {
-        final ConjuntoUpdateRequest sanitized = new ConjuntoUpdateRequest(id, request.ciudadId(),
-                request.administradorId(), StringSanitizer.sanitize(request.nombre()),
-                StringSanitizer.sanitize(request.direccion()), request.activo());
-        return updateConjuntoUseCase.execute(sanitized)
+        final ConjuntoUpdateRequest sanitized = new ConjuntoUpdateRequest(request.ciudadId(), request.administradorId(),
+                StringSanitizer.sanitize(request.nombre()), StringSanitizer.sanitize(request.direccion()),
+                request.activo());
+        final ConjuntoUpdateCommand command = new ConjuntoUpdateCommand(id, sanitized.ciudadId(),
+                sanitized.administradorId(), sanitized.nombre(), sanitized.direccion(), sanitized.activo());
+        return updateConjuntoUseCase.execute(command)
                 .map(change -> ResponseEntity.ok(ResponseDTO.of(
                         String.format("Conjunto residencial actualizado: antes=%s, después=%s", change.before(),
                                 change.after()),
